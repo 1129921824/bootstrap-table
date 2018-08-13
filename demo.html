@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/locale/bootstrap-table-zh-CN.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.css" rel="stylesheet">
+
+    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css"
+          rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/extensions/editable/bootstrap-table-editable.js"></script>
+
+</head>
+<body>
+<div class="panel-body" style="padding-bottom:0px;">
+
+    <div id="toolbar" class="btn-group">
+
+        <button id="btn_add_index" type="button" class="btn btn-default" onclick="appendRow()">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>添加数据
+        </button>
+        <button id="btn_add" type="button" class="btn btn-default" onclick="prependRow()">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>插入新数据
+        </button>
+
+        <button id="btn_delete" type="button" class="btn btn-default" onclick="updateByRow()">
+            <span class="glyphicon" aria-hidden="true"></span>更新行数据
+        </button>
+
+        <button id="btn_666" type="button" class="btn btn-default" onclick="updateByPrimaryKey()">
+            <span class="glyphicon" aria-hidden="true"></span>根据主键更新行数据
+        </button>
+
+    </div>
+    <table id="demo"></table>
+
+</div>
+<script>
+    $(function () {
+        //1.初始化Table
+        var table = new Init();
+        table.Init();
+    });
+    var Init = function () {
+        var tableInit = new Object();
+        //初始化Table
+        tableInit.Init = function () {
+            $('#demo').bootstrapTable({
+                url: './data.json',         //请求后台的URL（*）
+                method: 'post',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                // queryParams: queryParams,           //传递参数（*）
+                sidePagination: "client",
+                // sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageList: [5, 10, 20],        //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 1,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                // height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                // detailView: true,                   //是否显示父子表
+                columns: [{
+                    checkbox: true
+                }, {
+                    // field: 'id',                     //序号可以不用json数据里的
+                    title: '序号',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                }, {
+                    field: 'name',
+                    title: '姓名',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var name = row.name;
+                        var url = "<a href=\"javascrip:void(0)\" onclick=\"window.open('test.html','','height=800, width=800, top=265,left=645, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')\" target=\"_self\" >" + name + "</a>"
+                        return [
+                            url
+                        ].join("")
+                    }
+                }, {
+                    field: 'role',
+                    title: '角色',
+                    align: 'center'
+                }, {
+                    field: 'date',
+                    title: '入职日期',
+                    align: 'center',
+                    editable: {
+                        type: "text", //编辑框的类型。支持text|textarea|select|date|checklist等
+                        title: "入职日期", //编辑框的标题
+                        emptytext: "请填写", //空值的默认文本
+                        validate: function (value) { //字段验证
+                            if (!$.trim(value)) {
+                                return '字段不能为空';
+                            }
+                        },
+                        mode: "popup",//编辑框的模式：支持popup（弹出）和inline（行内）两种模式，默认popup
+                        onblur: 'submit',
+                        showbuttons: true,//展示确定按钮
+                    }
+                },]
+            });
+        };
+
+        function aFormatter(value) {
+            return [
+                '<a href="#">value</a>'
+            ].join("")
+        }
+
+        return tableInit;
+    };
+
+    // 尾部添加新一行
+    // var add = $('#btn_add');
+    // add.click(function () {
+    //     var index = $("#demo").bootstrapTable('getData').length;
+    //     $("#demo").bootstrapTable('insertRow', {
+    //         index: index,
+    //         row: {
+    //             id: '',
+    //             name: 'new张三',
+    //             role: '员工',
+    //             date: '2018'
+    //         }
+    //     });
+    // });
+
+    // function addRowByIndex() {
+    //     var row = $('#demo').bootstrapTable('getSelections');
+    //     if(row[row.length-1]!=null)
+    //     {
+    //         // alert(row[row.length-1].id);
+    //         console.log(row);
+    //         $("#demo").bootstrapTable('insertRow', {
+    //             index: row[row.length-1].id,
+    //             row: {
+    //                 id: '',
+    //                 name: '隔空插入',
+    //                 role: '员工',
+    //                 date: '2018'
+    //             }
+    //         });
+    //     }
+    //     else {
+    //         alert("请选择一行")
+    //     }
+    //     }
+
+    function appendRow() {
+        $("#demo").bootstrapTable('append', {
+            name: '添加张三',
+            role: '员工',
+            date: '2018'
+        })
+    }
+
+    function prependRow() {
+        var index = $("#demo").bootstrapTable('getData').length;
+        $("#demo").bootstrapTable('insertRow', {
+            index: index,
+            row: {
+                id: '',
+                name: '插入李四',
+                role: '员工',
+                date: '2018'
+            }
+        })
+    }
+
+    //更新选中行
+    function updateByRow() {
+        $("#demo").bootstrapTable('updateRow', {
+            index: 2,
+            row: {
+                id: '',
+                name: '更新行3',
+                role: '老板',
+                date: '2020'
+            }
+        });
+    }
+
+    //主键更新
+    function updateByPrimaryKey() {
+        $("#demo").bootstrapTable('updateByUniqueId', {
+            id: 5,
+            row: {
+                id: '',
+                name: '更新ID5',
+                role: '老板',
+                date: '2020'
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
